@@ -22,8 +22,14 @@ const Rect = styled.rect`
   height: 100%;
   fill: rgba(0, 0, 0, 0.2);
   stroke: rgba(0, 0, 0, 0.2);
-  stroke-width: 0px 1px 0px 1px;
   cursor: all-scroll;
+`;
+
+const Border = styled.rect`
+  height: 100%;
+  width: 1px;
+  fill: red;
+  cursor: col-resize;
 `;
 
 export type TRegion = { start: number; end: number } | undefined;
@@ -35,8 +41,6 @@ export interface RegionProps {
 }
 
 const Region: React.FC<RegionProps> = ({ region$, containerRef, onRegion }) => {
-  const refRect = useRef<SVGRectElement>(null);
-
   const [onMouseDown, mouseDown$] = useObservableCallback<
     React.MouseEvent<SVGRectElement, MouseEvent>
   >((e$) => e$.pipe(map(mouse.stopPropagation)));
@@ -88,13 +92,16 @@ const Region: React.FC<RegionProps> = ({ region$, containerRef, onRegion }) => {
 
   if (region === undefined) return null;
   return (
-    <Rect
-      ref={refRect}
-      onClick={(e) => e.stopPropagation()}
-      onMouseDown={onMouseDown}
-      x={`${region.start * 100}%`}
-      width={`${(region.end - region.start) * 100}%`}
-    />
+    <>
+      <Rect
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={onMouseDown}
+        x={`${region.start * 100}%`}
+        width={`${(region.end - region.start) * 100}%`}
+      />
+      <Border x={`${region.start * 100}%`} />
+      <Border x={`${region.end * 100}%`} />
+    </>
   );
 };
 

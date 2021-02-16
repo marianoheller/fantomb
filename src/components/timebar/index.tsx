@@ -142,7 +142,7 @@ const Timebar: React.FC<TimebarProps> = ({
   useSubscription(regionClear$, onRegion);
   useSubscription(wheel$, () => console.warn("WHEEL"));
 
-  const region$ = useObservable(() => merge(appRegion$, _region$))
+  const region$ = useObservable(() => merge(appRegion$, _region$));
 
   return (
     <>

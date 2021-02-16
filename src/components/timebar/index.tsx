@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { merge, Observable, OperatorFunction, timer } from "rxjs";
 import {
+  useObservable,
   useObservableCallback,
   useObservableState,
   useSubscription,
@@ -26,7 +27,7 @@ interface TimebarProps {
   progress: Observable<number>;
   onClick: (x: number) => void;
   onRegion: (r: TRegion) => void;
-  region$: Observable<TRegion>;
+  appRegion$: Observable<TRegion>;
 }
 
 const Svg = styled.svg<{ interactable: boolean }>`
@@ -48,7 +49,7 @@ const Timebar: React.FC<TimebarProps> = ({
   progress,
   onClick,
   onRegion,
-  region$,
+  appRegion$,
 }) => {
   const svgRef = useRef(null);
   const duration = useObservableState(duration$);
@@ -140,6 +141,8 @@ const Timebar: React.FC<TimebarProps> = ({
   useSubscription(regionEnd$, onRegion);
   useSubscription(regionClear$, onRegion);
   useSubscription(wheel$, () => console.warn("WHEEL"));
+
+  const region$ = useObservable(() => merge(appRegion$, _region$))
 
   return (
     <>

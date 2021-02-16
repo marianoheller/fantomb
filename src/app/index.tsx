@@ -97,7 +97,7 @@ function App() {
         progress={progress$}
         onClick={onManualProgress}
         onRegion={onRegion}
-        region$={region$}
+        appRegion$={region$}
       />
       <Controls
         status={status}

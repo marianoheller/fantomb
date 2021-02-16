@@ -7,6 +7,11 @@ export const preventDefault = <T extends SyntheticEvent>(e: T): T => {
   return e;
 };
 
+export const stopPropagation = <T extends SyntheticEvent>(e: T): T => {
+  e.stopPropagation();
+  return e;
+};
+
 export const globalMouseEventToXDistance = <T extends Element>(
   ref: RefObject<T>
 ) => (e: React.MouseEvent): number => {
@@ -29,6 +34,16 @@ export const localMouseEventToXDistance = <T extends Element>(
 export const globalMouseMove$ = fromEvent<React.MouseEvent>(
   document,
   "mousemove"
+);
+
+export const globalMouseDown$ = fromEvent<React.MouseEvent>(
+  document,
+  "mousedown"
+);
+
+export const globalMouseUp$ = fromEvent<React.MouseEvent>(
+  document,
+  "mouseup"
 );
 
 export const mousePosRelative$ = <T extends Element>(ref: RefObject<T>) =>

@@ -17,7 +17,6 @@ const Recorder: React.FC<RecorderProps> = ({ disabled, onAction, status }) => {
     (blob: Blob) => {
       if (refPlayer.current) {
         const blobUrl = URL.createObjectURL(blob);
-        console.warn("GOT URL", blobUrl);
         refPlayer.current.src = blobUrl;
         onAction({ type: "VoiceStoppedRecording" });
       }

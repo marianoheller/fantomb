@@ -29,7 +29,7 @@ function App() {
     undefined
   );
 
-  const [onRegion, region$] = useObservableCallback<TRegion>((d$) => d$);
+  const [onRegion, region$] = useObservableCallback<TRegion>((r$) => r$);
 
   const [onDuration, duration$] = useObservableCallback<number | undefined>(
     (d$) => d$
@@ -97,6 +97,7 @@ function App() {
         progress={progress$}
         onClick={onManualProgress}
         onRegion={onRegion}
+        region$={region$}
       />
       <Controls
         status={status}

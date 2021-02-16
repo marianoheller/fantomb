@@ -21,13 +21,12 @@ import * as mouse from "../../shared/operators/mouse";
 
 import Region, { TRegion } from "./region";
 
-const CLICK_HOLD_TIMEOUT = 100;
-
 interface TimebarProps {
   duration$: Observable<number | undefined>;
   progress: Observable<number>;
   onClick: (x: number) => void;
   onRegion: (r: TRegion) => void;
+  region$: Observable<TRegion>;
 }
 
 const Svg = styled.svg<{ interactable: boolean }>`
@@ -49,6 +48,7 @@ const Timebar: React.FC<TimebarProps> = ({
   progress,
   onClick,
   onRegion,
+  region$,
 }) => {
   const svgRef = useRef(null);
   const duration = useObservableState(duration$);
@@ -106,7 +106,7 @@ const Timebar: React.FC<TimebarProps> = ({
 
   const holdClick$ = mouseDown$.pipe(
     switchMap((e) =>
-      timer(CLICK_HOLD_TIMEOUT).pipe(
+      timer(100).pipe(
         takeUntil(mouseUp$),
         map(() => mouse.globalMouseEventToXDistance(svgRef)(e))
       )
@@ -115,7 +115,7 @@ const Timebar: React.FC<TimebarProps> = ({
 
   const regionClear$ = rightClick$.pipe(map(() => undefined));
 
-  const region$: Observable<TRegion> = merge(
+  const _region$: Observable<TRegion> = merge(
     holdClick$.pipe(
       switchMap((x1) =>
         mousePosRelative$.pipe(
@@ -132,7 +132,7 @@ const Timebar: React.FC<TimebarProps> = ({
 
   const regionEnd$ = holdClick$.pipe(
     switchMap(() => mouseUp$.pipe(take(1))),
-    withLatestFrom(region$),
+    withLatestFrom(_region$),
     map(([_, r]) => r)
   );
 
@@ -153,7 +153,7 @@ const Timebar: React.FC<TimebarProps> = ({
         interactable={duration !== undefined}
       >
         <Marker x={markerPosition} />
-        <Region region$={region$} />
+        <Region region$={region$} containerRef={svgRef} onRegion={onRegion} />
       </Svg>
     </>
   );

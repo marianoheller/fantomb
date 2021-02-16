@@ -12,6 +12,8 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
+  throttleTime,
   withLatestFrom,
 } from "rxjs/operators";
 import styled from "styled-components";
@@ -88,14 +90,19 @@ const Timebar: React.FC<TimebarProps> = ({
     >
   );
 
-  const [_onClick, click$] = useObservableCallback<React.MouseEvent<SVGSVGElement, MouseEvent>>(e$ => e$)
+  const [_onClick, click$] = useObservableCallback<
+    React.MouseEvent<SVGSVGElement, MouseEvent>
+  >((e$) => e$);
 
   const leftClick$ = click$.pipe(
     filter((e) => e.button === 0),
     map(mouse.globalMouseEventToXDistance(svgRef))
   );
 
-  const rightClick$ = click$.pipe(filter((e) => e.button === 2));
+  const rightClick$ = mouseDown$.pipe(
+    filter((e) => e.button === 2),
+    throttleTime(500)
+  );
 
   const holdClick$ = mouseDown$.pipe(
     switchMap((e) =>

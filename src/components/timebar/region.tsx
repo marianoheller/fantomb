@@ -23,6 +23,12 @@ const Region: React.FC<RegionProps> = ({ region$ }) => {
   if (region === undefined) return null;
   return (
     <Rect
+      onClick={e => {
+        e.stopPropagation()
+      }}
+      onMouseDown={e => {
+        e.stopPropagation()
+      }}
       x={`${region.start * 100}%`}
       width={`${(region.end - region.start) * 100}%`}
     />

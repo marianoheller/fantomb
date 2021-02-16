@@ -44,15 +44,17 @@ function App() {
   );
 
   const progress$ = merge(playerProgress$, manualProgress$).pipe(
-    throttleTime(200)
+    throttleTime(100)
   );
 
   const [status, onControlAction] = useObservableState<Status, ControlAction>(
     (a$) =>
       a$.pipe(
-        map(({ type }) => {
+        withLatestFrom(region$),
+        map(([{ type }, r]) => {
           switch (type) {
             case "VideoStartedPlaying":
+              if (r) playerRef.current?.seekTo(r.start)
               return "PlayingVideo";
             case "VoiceStartedPlaying":
               return "PlayingVoice";
@@ -69,7 +71,7 @@ function App() {
     "Idle"
   );
 
-  const regionEndByPlayer$ = useObservable<Region>(() =>
+  const regionEndAutomatically$ = useObservable<Region>(() =>
     playerProgress$.pipe(
       withLatestFrom(region$),
       filter(([, r]) => r !== undefined) as OperatorFunction<
@@ -81,7 +83,7 @@ function App() {
     )
   );
 
-  useSubscription(regionEndByPlayer$, (r) => {
+  useSubscription(regionEndAutomatically$, (r) => {
     onControlAction({ type: "VideoStoppedPlaying" });
     playerRef.current?.seekTo(r.start);
   });

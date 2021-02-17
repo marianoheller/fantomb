@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import styled from "styled-components";
 import { merge, Observable, OperatorFunction, timer } from "rxjs";
 import {
   useObservable,
@@ -7,7 +8,6 @@ import {
   useSubscription,
 } from "observable-hooks";
 import {
-  debounceTime,
   filter,
   map,
   switchMap,
@@ -17,7 +17,6 @@ import {
   throttleTime,
   withLatestFrom,
 } from "rxjs/operators";
-import styled from "styled-components";
 import * as mouse from "../../shared/operators/mouse";
 
 import Region, { TRegion } from "./region";

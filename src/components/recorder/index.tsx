@@ -11,17 +11,19 @@ interface RecorderProps {
 
 const Recorder: React.FC<RecorderProps> = ({ disabled, onAction, status }) => {
   const refPlayer = useRef<HTMLAudioElement>(null);
+  const [blobUrl, setBlobUrl] = useState<string | undefined>(undefined);
   const [prevStatus, setPrevStatus] = useState<Status>(status);
 
   const onStop = useCallback(
     (blob: Blob) => {
       if (refPlayer.current) {
-        const blobUrl = URL.createObjectURL(blob);
-        refPlayer.current.src = blobUrl;
+        const _blobUrl = URL.createObjectURL(blob);
+        refPlayer.current.src = _blobUrl;
+        setBlobUrl(_blobUrl);
         onAction({ type: "VoiceStoppedRecording" });
       }
     },
-    [onAction, refPlayer]
+    [onAction, setBlobUrl, refPlayer]
   );
 
   const { startRecording, stopRecording } = useMediaRecorder({ onStop });
@@ -31,9 +33,13 @@ const Recorder: React.FC<RecorderProps> = ({ disabled, onAction, status }) => {
   }, [status]);
 
   useEffect(() => {
-    if (status === "Recording") startRecording();
+    if (status === "Recording") {
+      startRecording();
+      URL.revokeObjectURL(blobUrl || "");
+      setBlobUrl(undefined);
+    }
     if (status !== "Recording" && prevStatus === "Recording") stopRecording();
-  }, [status, prevStatus, startRecording, stopRecording]);
+  }, [status, prevStatus, startRecording, stopRecording, setBlobUrl, blobUrl]);
 
   useEffect(() => {
     if (refPlayer.current) {

@@ -92,10 +92,8 @@ export function useMediaRecorder({
 
   function handleStop() {
     let [sampleChunk] = mediaChunks.current;
-    let blobPropertyBag = Object.assign(
-      { type: sampleChunk.type },
-      blobOptions
-    );
+    const type = sampleChunk ? sampleChunk.type : "audio/webm";
+    let blobPropertyBag = Object.assign({ type }, blobOptions);
     let blob = new Blob(mediaChunks.current, blobPropertyBag);
 
     setMediaBlob(blob);

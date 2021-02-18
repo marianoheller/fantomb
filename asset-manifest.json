@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.js": "/fantomb/static/js/main.72324b4b.chunk.js",
-    "main.js.map": "/fantomb/static/js/main.72324b4b.chunk.js.map",
+    "main.js": "/fantomb/static/js/main.db8b5a88.chunk.js",
+    "main.js.map": "/fantomb/static/js/main.db8b5a88.chunk.js.map",
     "runtime-main.js": "/fantomb/static/js/runtime-main.075cfdd0.js",
     "runtime-main.js.map": "/fantomb/static/js/runtime-main.075cfdd0.js.map",
     "static/js/2.bb9a4f59.chunk.js": "/fantomb/static/js/2.bb9a4f59.chunk.js",
@@ -14,6 +14,6 @@
   "entrypoints": [
     "static/js/runtime-main.075cfdd0.js",
     "static/js/2.bb9a4f59.chunk.js",
-    "static/js/main.72324b4b.chunk.js"
+    "static/js/main.db8b5a88.chunk.js"
   ]
 }

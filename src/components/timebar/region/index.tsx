@@ -1,22 +1,8 @@
-import React, { RefObject, useRef } from "react";
-import { combineLatest, merge, Observable, of } from "rxjs";
-import {
-  useObservable,
-  useObservableCallback,
-  useObservableState,
-  useSubscription,
-} from "observable-hooks";
+import React, { RefObject } from "react";
+import { merge, Observable } from "rxjs";
+import { useObservableState } from "observable-hooks";
 import styled from "styled-components";
 
-import * as mouse from "../../../shared/operators/mouse";
-import {
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-  withLatestFrom,
-} from "rxjs/operators";
 import { useRegionDrag, useRegionResize } from "./hooks";
 
 const Rect = styled.rect`
@@ -29,7 +15,7 @@ const Rect = styled.rect`
 const Border = styled.rect`
   height: 100%;
   width: 1px;
-  fill: rgba(0,0,0,0.5);
+  fill: rgba(0, 0, 0, 0.5);
   cursor: col-resize;
 `;
 
@@ -42,7 +28,7 @@ export interface RegionProps {
 }
 
 const Region: React.FC<RegionProps> = (props) => {
-  const { region$, containerRef, onRegion } = props;
+  const { region$ } = props;
   const drag = useRegionDrag(props);
   const resizeStart = useRegionResize({ ...props, key: "start" });
   const resizeEnd = useRegionResize({ ...props, key: "end" });

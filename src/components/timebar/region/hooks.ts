@@ -1,9 +1,8 @@
-import React, { RefObject, useRef } from "react";
-import { combineLatest, merge, Observable, of } from "rxjs";
+import React, { RefObject } from "react";
+import { Observable } from "rxjs";
 import {
   useObservable,
   useObservableCallback,
-  useObservableState,
   useSubscription,
 } from "observable-hooks";
 
@@ -13,11 +12,13 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
   withLatestFrom,
 } from "rxjs/operators";
 
-export interface Region { start: number; end: number } 
+export interface Region {
+  start: number;
+  end: number;
+}
 export type TRegion = Region | undefined;
 
 export interface UseRegionDragInput {
@@ -83,12 +84,11 @@ export const useRegionDrag = ({
   return { updatedRegion$, onMouseDown };
 };
 
-
 export interface UseRegionResize {
   region$: Observable<TRegion>;
   containerRef: RefObject<SVGSVGElement>;
   onRegion: (r: TRegion) => void;
-  key: keyof Region
+  key: keyof Region;
 }
 
 export interface UseRegionResizeOutput {

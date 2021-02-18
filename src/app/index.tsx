@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 import Player from "../components/player";
 import Input from "../components/input";
@@ -30,6 +30,7 @@ function App() {
   );
 
   const [onRegion, region$] = useObservableCallback<TRegion>((r$) => r$);
+  useSubscription(url$, () => onRegion(undefined))
 
   const [onDuration, duration$] = useObservableCallback<number | undefined>(
     (d$) => d$

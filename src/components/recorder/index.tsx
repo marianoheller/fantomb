@@ -33,7 +33,7 @@ const Recorder: React.FC<RecorderProps> = ({ disabled, onAction, status }) => {
   }, [status]);
 
   useEffect(() => {
-    if (status === "Recording") {
+    if (status === "Recording" && prevStatus !== "Recording") {
       startRecording();
       URL.revokeObjectURL(blobUrl || "");
       setBlobUrl(undefined);

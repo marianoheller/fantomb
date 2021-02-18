@@ -29,7 +29,7 @@ export function useMediaRecorder({
     if (error) {
       setError(null);
     }
-
+    
     setStatus("acquiring_media");
 
     try {
@@ -61,7 +61,7 @@ export function useMediaRecorder({
       setError(null);
     }
 
-    if (!mediaStream.current) {
+    if (!mediaStream.current && status !== "acquiring_media") {
       await getMediaStream();
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "fantomb",
-  "homepage":"https://marianoheller.github.io/fantomb",
+  "homepage": "https://marianoheller.github.io/fantomb",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,6 +8,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/d3-axis": "^2.0.0",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
@@ -15,7 +16,9 @@
     "@types/react-redux": "^7.1.16",
     "@types/styled-components": "^5.1.7",
     "add": "^2.0.6",
+    "d3-axis": "^2.0.0",
     "d3-scale": "^3.2.3",
+    "date-fns": "^2.17.0",
     "observable-hooks": "^3.1.2",
     "react": "^17.0.1",
     "react-d3-axis": "^0.1.2",
@@ -56,6 +59,7 @@
     ]
   },
   "devDependencies": {
+    "@types/d3-scale": "^3.2.2",
     "@types/dom-mediacapture-record": "^1.0.7",
     "gh-pages": "^3.1.0"
   }

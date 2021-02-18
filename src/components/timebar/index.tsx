@@ -19,6 +19,7 @@ import {
 import * as mouse from "../../shared/operators/mouse";
 
 import Region, { TRegion } from "./region";
+import Axis from "./axis";
 
 interface TimebarProps {
   duration$: Observable<number | undefined>;
@@ -155,6 +156,7 @@ const Timebar: React.FC<TimebarProps> = ({
       >
         <Marker x={markerPosition} />
         <Region region$={region$} containerRef={svgRef} onRegion={onRegion} />
+        <Axis duration={duration} />
       </Svg>
     </>
   );

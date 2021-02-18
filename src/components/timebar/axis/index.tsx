@@ -16,7 +16,7 @@ const Foreign = styled.foreignObject`
   // y
 `;
 
-const Wrapper = styled.foreignObject`
+const Wrapper = styled.div<{ xmlns: string }>`
   display: flex;
   justify-content: space-between;
 `;
@@ -30,11 +30,12 @@ function toDateTime(secs: number | undefined) {
 }
 
 const formatTick = (d: Date): string => {
-  if (d.getHours() > 0) return format(d, "HH:mm:ss")
-  return format(d, "mm:ss")
+  if (d.getHours() > 0) return format(d, "HH:mm:ss");
+  return format(d, "mm:ss");
 };
 
 const Axis: React.FC<AxiosProps> = ({ duration }) => {
+  const windowSize = useWindowSize();
   const scale = useMemo(
     () =>
       scaleTime()
@@ -52,8 +53,8 @@ const Axis: React.FC<AxiosProps> = ({ duration }) => {
   );
 
   return (
-    <Foreign>
-      <Wrapper>{Ticks}</Wrapper>
+    <Foreign key={String(windowSize)}>
+      <Wrapper xmlns="http://www.w3.org/1999/xhtml">{Ticks}</Wrapper>
     </Foreign>
   );
 };

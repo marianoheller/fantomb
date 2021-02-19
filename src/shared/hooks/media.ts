@@ -102,8 +102,9 @@ export function useMediaRecorder({
 
     if (!mediaStream.current && status !== "acquiring_media") {
       await getMediaStream();
-      mediaChunks.current = [];
     }
+
+    mediaChunks.current = [];
 
     if (mediaStream.current) {
       mediaRecorder.current = new MediaRecorder(mediaStream.current, {
@@ -115,7 +116,7 @@ export function useMediaRecorder({
       );
       mediaRecorder.current.addEventListener("stop", handleStop);
       mediaRecorder.current.addEventListener("error", handleError);
-      mediaRecorder.current.start();
+      mediaRecorder.current.start(100);
       setStatus("recording");
       onStart();
     }
@@ -162,9 +163,11 @@ export function useMediaRecorder({
   const stopRecording = useCallback(() => {
     if (mediaRecorder.current) {
       setStatus("stopping");
-      mediaRecorder.current.stop();
-      // not sure whether to place clean up in useEffect?
-      // If placed in useEffect the handler functions become dependencies of useEffect
+      try {
+        mediaRecorder.current.stop();
+      } catch {
+        console.warn("Stoping idle media recorder!");
+      }
       mediaRecorder.current.removeEventListener(
         "dataavailable",
         handleDataAvailable

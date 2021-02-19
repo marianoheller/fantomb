@@ -6,7 +6,7 @@ import {
   useSubscription,
 } from "observable-hooks";
 
-import * as mouse from "../../../shared/operators/mouse";
+import * as mouse from "../../../../shared/operators/mouse";
 import {
   map,
   switchMap,

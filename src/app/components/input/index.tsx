@@ -1,4 +1,8 @@
-import { useObservableCallback, useSubscription } from "observable-hooks";
+import {
+  useObservable,
+  useObservableCallback,
+  useSubscription,
+} from "observable-hooks";
 import React, { KeyboardEvent } from "react";
 import { race, timer } from "rxjs";
 import { debounce, filter, map } from "rxjs/operators";
@@ -23,13 +27,15 @@ const Input: React.FC<InputProps> = ({ onChange }) => {
     )
   );
 
-  const onActualChange$ = onChange$.pipe(
-    debounce(() => race(timer(1000), onEnter$))
+  const onActualChange$ = useObservable(() =>
+    onChange$.pipe(debounce(() => race(timer(1000), onEnter$)))
   );
 
   useSubscription(onActualChange$, onChange);
 
-  return <input name="youtube url" onChange={_onChange} onKeyPress={_onEnter} />;
+  return (
+    <input name="youtube url" onChange={_onChange} onKeyPress={_onEnter} />
+  );
 };
 
 export default Input;

@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { axisBottom } from "d3-axis";
-import { scaleLinear, scaleTime } from "d3-scale";
+import { scaleTime } from "d3-scale";
 import format from "date-fns/format";
-import { useWindowSize } from "../../../shared/hooks/browser";
+import { useWindowSize } from "../../../../shared/hooks/browser";
+import { useObservableState } from "observable-hooks";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 interface AxiosProps {
-  duration: number | undefined;
+  duration$: Observable<number>;
 }
 
 const Foreign = styled.foreignObject`
@@ -34,20 +36,22 @@ const formatTick = (d: Date): string => {
   return format(d, "mm:ss");
 };
 
-const Axis: React.FC<AxiosProps> = ({ duration }) => {
+const Axis: React.FC<AxiosProps> = ({ duration$ }) => {
   const windowSize = useWindowSize();
-  const scale = useMemo(
-    () =>
-      scaleTime()
-        .domain([toDateTime(0), toDateTime(duration)])
-        .range([0, 100]),
-    [duration]
+  const [scale] = useObservableState(() =>
+    duration$.pipe(
+      map((d) =>
+        scaleTime()
+          .domain([toDateTime(0), toDateTime(d)])
+          .range([0, 100])
+      )
+    )
   );
 
   const Ticks = useMemo(
     () =>
       scale
-        .ticks()
+        ?.ticks()
         .map((tick) => <Tick key={tick.valueOf()}>{formatTick(tick)}</Tick>),
     [scale]
   );

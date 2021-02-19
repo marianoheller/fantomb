@@ -1,6 +1,12 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import { merge, Observable, OperatorFunction, timer } from "rxjs";
+import {
+  BehaviorSubject,
+  merge,
+  Observable,
+  OperatorFunction,
+  timer,
+} from "rxjs";
 import {
   useObservable,
   useObservableCallback,
@@ -8,6 +14,7 @@ import {
   useSubscription,
 } from "observable-hooks";
 import {
+  distinctUntilChanged,
   filter,
   map,
   switchMap,
@@ -16,17 +23,18 @@ import {
   throttleTime,
   withLatestFrom,
 } from "rxjs/operators";
-import * as mouse from "../../shared/operators/mouse";
+import * as mouse from "../../../shared/operators/mouse";
+
+import { AppState } from "../../state";
 
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
+import Marker from "./marker";
 
 interface TimebarProps {
-  duration$: Observable<number | undefined>;
-  progress: Observable<number>;
-  onClick: (x: number) => void;
-  onRegion: (r: TRegion) => void;
-  appRegion$: Observable<TRegion>;
+  state$: BehaviorSubject<AppState>;
+  setRegion: (r: TRegion) => void;
+  setProgress: (r: number) => void;
 }
 
 const Svg = styled.svg<{ interactable: boolean }>`
@@ -37,41 +45,28 @@ const Svg = styled.svg<{ interactable: boolean }>`
   pointer-events: ${({ interactable }) => (interactable ? "all" : "none")};
 `;
 
-const Marker = styled.rect`
-  width: 1px;
-  height: 100%;
-  fill: rgb(10, 10, 10);
-`;
-
 const Timebar: React.FC<TimebarProps> = ({
-  duration$,
-  progress,
-  onClick,
-  onRegion,
-  appRegion$,
+  state$,
+  setRegion,
+  setProgress,
 }) => {
   const svgRef = useRef(null);
-  const duration = useObservableState(duration$);
-  const [markerPosition] = useObservableState<string>(
-    () =>
-      progress.pipe(
-        map((v) => {
-          if (!v) return "0px";
-          return `${v * 100}%`;
-        })
-      ),
-    "0px"
+  const [videoLoaded] = useObservableState(() =>
+    state$.pipe(map(({ url }) => url !== undefined))
+  );
+  const appRegion$ = useObservable(() =>
+    state$.pipe(
+      map((s) => s.region),
+      distinctUntilChanged()
+    )
   );
 
-  const [onWheel, wheel$] = useObservableCallback<
-    React.MouseEvent<SVGSVGElement, WheelEvent>
-  >((e$) =>
-    e$.pipe(
-      map((e) => {
-        e.stopPropagation();
-        return e;
-      })
-    )
+  const progress$ = useObservable<number>(() =>
+    state$.pipe(map(({ progress }) => progress))
+  );
+
+  const duration$ = useObservable<number>(() =>
+    state$.pipe(map(({ duration }) => duration))
   );
 
   const [onMouseDown, mouseDown$] = useObservableCallback<
@@ -136,10 +131,9 @@ const Timebar: React.FC<TimebarProps> = ({
     map(([_, r]) => r)
   );
 
-  useSubscription(leftClick$, onClick);
-  useSubscription(regionEnd$, onRegion);
-  useSubscription(regionClear$, onRegion);
-  useSubscription(wheel$, () => console.warn("WHEEL"));
+  useSubscription(leftClick$, setProgress);
+  useSubscription(regionEnd$, setRegion);
+  useSubscription(regionClear$, setRegion);
 
   const region$ = useObservable(() => merge(appRegion$, _region$));
 
@@ -151,12 +145,11 @@ const Timebar: React.FC<TimebarProps> = ({
         onClick={_onClick}
         onMouseUp={onMouseUp}
         onMouseDown={onMouseDown}
-        onWheel={onWheel}
-        interactable={duration !== undefined}
+        interactable={!!videoLoaded}
       >
-        <Marker x={markerPosition} />
-        <Region region$={region$} containerRef={svgRef} onRegion={onRegion} />
-        <Axis duration={duration} />
+        <Marker progress$={progress$} />
+        <Region region$={region$} containerRef={svgRef} onRegion={setRegion} />
+        <Axis duration$={duration$} />
       </Svg>
     </>
   );

@@ -141,7 +141,6 @@ export function useMediaRecorder({
       );
       mediaRecorder.current.removeEventListener("stop", handleStop);
       mediaRecorder.current.removeEventListener("error", handleError);
-      mediaRecorder.current = null;
       clearMediaStream();
     }
   }

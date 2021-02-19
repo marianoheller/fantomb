@@ -31,24 +31,24 @@ const noop = (...args: any[]): void => {};
 
 const Controls: React.FC<ControlProps> = ({ status, onAction, duration$ }) => {
   const labels = useLabels(status);
-  const noAudio = useObservableState(
+  const noVideo = useObservableState(
     duration$.pipe(map((d) => d === undefined)),
     false
   );
 
   const videoDisabled = useMemo(
-    () => noAudio || status === "Recording" || status === "PlayingVoice",
-    [noAudio, status]
+    () => noVideo || status === "Recording" || status === "PlayingVoice",
+    [noVideo, status]
   );
 
   const recordingDisabled = useMemo(
-    () => noAudio || status === "PlayingVideo" || status === "PlayingVoice",
-    [noAudio, status]
+    () => noVideo || status === "PlayingVideo" || status === "PlayingVoice",
+    [noVideo, status]
   );
 
   const playbackDisabled = useMemo(
-    () => noAudio || status === "PlayingVideo" || status === "Recording",
-    [noAudio, status]
+    () => noVideo || status === "PlayingVideo" || status === "Recording",
+    [noVideo, status]
   );
 
   const onAudioClick = useCallback(

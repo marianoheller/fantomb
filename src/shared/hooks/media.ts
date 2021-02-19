@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 const noop = () => {};
+
+export type MediaRecorderStatus =
+  | "acquiring_media"
+  | "ready"
+  | "failed"
+  | "idle"
+  | "stopping"
+  | "stopped"
+  | "recording";
 
 export interface UseMediaRecorder {
   blobOptions?: Partial<BlobPropertyBag>;
@@ -21,15 +30,15 @@ export function useMediaRecorder({
   let mediaStream = React.useRef<MediaStream | null>(null);
   let mediaRecorder = React.useRef<MediaRecorder | null>(null);
   let [error, setError] = React.useState<Error | null>(null);
-  let [status, setStatus] = React.useState("idle");
+  let [status, setStatus] = React.useState<MediaRecorderStatus>("idle");
   let [mediaBlob, setMediaBlob] = React.useState<Blob | null>(null);
   let [isAudioMuted, setIsAudioMuted] = React.useState(false);
 
-  async function getMediaStream() {
+  const getMediaStream = useCallback(async () => {
     if (error) {
       setError(null);
     }
-    
+
     setStatus("acquiring_media");
 
     try {
@@ -47,25 +56,54 @@ export function useMediaRecorder({
       setError(err);
       setStatus("failed");
     }
-  }
+  }, [mediaStream, setStatus, setError, error]);
 
-  function clearMediaStream() {
+  const clearMediaStream = useCallback(() => {
     if (mediaStream.current) {
       mediaStream.current.getTracks().forEach((track) => track.stop());
       mediaStream.current = null;
     }
-  }
+  }, [mediaStream]);
 
-  async function startRecording() {
+  const handleDataAvailable = useCallback(
+    (e: BlobEvent) => {
+      if (e.data.size) {
+        mediaChunks.current.push(e.data);
+      }
+      onDataAvailable(e.data);
+    },
+    [onDataAvailable, mediaChunks]
+  );
+
+  const handleStop = useCallback(() => {
+    let [sampleChunk] = mediaChunks.current;
+    const type = sampleChunk ? sampleChunk.type : "audio/webm";
+    let blobPropertyBag = Object.assign({ type }, blobOptions);
+    let blob = new Blob(mediaChunks.current, blobPropertyBag);
+
+    setMediaBlob(blob);
+    setStatus("stopped");
+    onStop(blob);
+  }, [mediaChunks, blobOptions, setMediaBlob, setStatus, onStop]);
+
+  const handleError = useCallback(
+    (e: MediaRecorderErrorEvent) => {
+      setError(e.error);
+      setStatus("idle");
+      onError(e.error);
+    },
+    [setError, setStatus, onError]
+  );
+
+  const startRecording = useCallback(async () => {
     if (error) {
       setError(null);
     }
 
     if (!mediaStream.current && status !== "acquiring_media") {
       await getMediaStream();
+      mediaChunks.current = [];
     }
-
-    mediaChunks.current = [];
 
     if (mediaStream.current) {
       mediaRecorder.current = new MediaRecorder(mediaStream.current, {
@@ -81,55 +119,47 @@ export function useMediaRecorder({
       setStatus("recording");
       onStart();
     }
-  }
+  }, [
+    mediaRecorder,
+    mediaStream,
+    mediaChunks,
+    error,
+    status,
+    onStart,
+    setError,
+    setStatus,
+    getMediaStream,
+    handleDataAvailable,
+    handleError,
+    handleStop,
+  ]);
 
-  function handleDataAvailable(e: BlobEvent) {
-    if (e.data.size) {
-      mediaChunks.current.push(e.data);
-    }
-    onDataAvailable(e.data);
-  }
+  const muteAudio = useCallback(
+    (mute: boolean) => {
+      setIsAudioMuted(mute);
 
-  function handleStop() {
-    let [sampleChunk] = mediaChunks.current;
-    const type = sampleChunk ? sampleChunk.type : "audio/webm";
-    let blobPropertyBag = Object.assign({ type }, blobOptions);
-    let blob = new Blob(mediaChunks.current, blobPropertyBag);
+      if (mediaStream.current) {
+        mediaStream.current.getAudioTracks().forEach((audioTrack) => {
+          audioTrack.enabled = !mute;
+        });
+      }
+    },
+    [setIsAudioMuted, mediaStream]
+  );
 
-    setMediaBlob(blob);
-    setStatus("stopped");
-    onStop(blob);
-  }
-
-  function handleError(e: MediaRecorderErrorEvent) {
-    setError(e.error);
-    setStatus("idle");
-    onError(e.error);
-  }
-
-  function muteAudio(mute: boolean) {
-    setIsAudioMuted(mute);
-
-    if (mediaStream.current) {
-      mediaStream.current.getAudioTracks().forEach((audioTrack) => {
-        audioTrack.enabled = !mute;
-      });
-    }
-  }
-
-  function pauseRecording() {
+  const pauseRecording = useCallback(() => {
     if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
       mediaRecorder.current.pause();
     }
-  }
+  }, [mediaRecorder]);
 
-  function resumeRecording() {
+  const resumeRecording = useCallback(() => {
     if (mediaRecorder.current && mediaRecorder.current.state === "paused") {
       mediaRecorder.current.resume();
     }
-  }
+  }, [mediaRecorder]);
 
-  function stopRecording() {
+  const stopRecording = useCallback(() => {
     if (mediaRecorder.current) {
       setStatus("stopping");
       mediaRecorder.current.stop();
@@ -143,7 +173,14 @@ export function useMediaRecorder({
       mediaRecorder.current.removeEventListener("error", handleError);
       clearMediaStream();
     }
-  }
+  }, [
+    mediaRecorder,
+    clearMediaStream,
+    handleDataAvailable,
+    handleError,
+    handleStop,
+    setStatus,
+  ]);
 
   React.useEffect(() => {
     if (!window.MediaRecorder) {

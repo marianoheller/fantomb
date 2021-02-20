@@ -12,8 +12,13 @@ import { AppState, AppStatus } from "../../state";
 import { getLabels } from "./utils";
 
 const Container = styled.div`
-  display: flex;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+  & > * {
+    margin: 0 0.5rem;
+  }
 `;
 
 interface ControlProps {

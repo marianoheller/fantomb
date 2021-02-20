@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import {
   BehaviorSubject,
@@ -42,7 +42,8 @@ const Svg = styled.svg<{ interactable: boolean }>`
   height: 2rem;
   background-color: rgb(240, 240, 240);
   cursor: ${({ interactable }) => (interactable ? "pointer" : "auto")};
-  pointer-events: ${({ interactable }) => (interactable ? "all" : "none")};
+  /* pointer-events: ${({ interactable }) =>
+    interactable ? "all" : "none"}; */
 `;
 
 const Timebar: React.FC<TimebarProps> = ({
@@ -50,7 +51,12 @@ const Timebar: React.FC<TimebarProps> = ({
   setRegion,
   setProgress,
 }) => {
-  const svgRef = useRef(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  useEffect(
+    () => svgRef.current?.addEventListener("wheel", (e) => e.preventDefault()),
+    [svgRef]
+  );
+
   const [videoLoaded] = useObservableState(() =>
     state$.pipe(map(({ url }) => url !== undefined))
   );
@@ -66,7 +72,10 @@ const Timebar: React.FC<TimebarProps> = ({
   );
 
   const duration$ = useObservable<number>(() =>
-    state$.pipe(map(({ duration }) => duration), distinctUntilChanged())
+    state$.pipe(
+      map(({ duration }) => duration),
+      distinctUntilChanged()
+    )
   );
 
   const [onMouseDown, mouseDown$] = useObservableCallback<
@@ -146,6 +155,9 @@ const Timebar: React.FC<TimebarProps> = ({
         onMouseUp={onMouseUp}
         onMouseDown={onMouseDown}
         interactable={!!videoLoaded}
+        onWheel={(e) => {
+          console.warn("onWheel");
+        }}
       >
         <Marker progress$={progress$} />
         <Region region$={region$} containerRef={svgRef} onRegion={setRegion} />

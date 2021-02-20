@@ -1,15 +1,28 @@
+import React, { KeyboardEvent } from "react";
+import styled from "styled-components";
 import {
   useObservable,
   useObservableCallback,
   useSubscription,
 } from "observable-hooks";
-import React, { KeyboardEvent } from "react";
 import { race, timer } from "rxjs";
 import { debounce, filter, map } from "rxjs/operators";
 
 interface InputProps {
   onChange: (s: string) => void;
 }
+
+const InputWrapper = styled.div`
+  margin: 1rem 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledInput = styled.input`
+  width: 20rem;
+  text-align: center;
+`;
 
 const Input: React.FC<InputProps> = ({ onChange }) => {
   const [_onChange, onChange$] = useObservableCallback<
@@ -34,7 +47,15 @@ const Input: React.FC<InputProps> = ({ onChange }) => {
   useSubscription(onActualChange$, onChange);
 
   return (
-    <input name="youtube url" onChange={_onChange} onKeyPress={_onEnter} />
+    <InputWrapper>
+      <StyledInput
+        name="youtube"
+        type="text"
+        autoComplete="on"
+        onChange={_onChange}
+        onKeyPress={_onEnter}
+      />
+    </InputWrapper>
   );
 };
 

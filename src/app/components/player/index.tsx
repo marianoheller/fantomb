@@ -12,6 +12,11 @@ interface PlayerProps {
   setDuration: (progress: number) => void;
 }
 
+const PlayerWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const StyledReactPlayer = styled(ReactPlayer)`
   pointer-events: none;
 `;
@@ -32,16 +37,18 @@ const Player: React.FC<PlayerProps> = ({
   );
 
   return (
-    <StyledReactPlayer
-      ref={ref}
-      url={url}
-      playing={playing}
-      controls={false}
-      onDuration={setDuration}
-      onProgress={_setProgress}
-      volume={1}
-      progressInterval={100}
-    />
+    <PlayerWrapper>
+      <StyledReactPlayer
+        ref={ref}
+        url={url}
+        playing={playing}
+        controls={false}
+        onDuration={setDuration}
+        onProgress={_setProgress}
+        volume={1}
+        progressInterval={100}
+      />
+    </PlayerWrapper>
   );
 };
 

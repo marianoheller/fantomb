@@ -76,7 +76,7 @@ const Controls: React.FC<ControlProps> = ({ state$, setStatus }) => {
         setStatus("idle");
         break;
       case "idle":
-        setStatus("recordingVoice");
+        setStatus("attemptingRecord");
         break;
       default:
         break;

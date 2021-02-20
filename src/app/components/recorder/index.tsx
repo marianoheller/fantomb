@@ -33,11 +33,18 @@ const Recorder: React.FC<RecorderProps> = ({ state$, setStatus }) => {
     [setStatus, setBlobUrl, refAudio]
   );
 
-  const { startRecording, stopRecording } = useMediaRecorder({ onStop });
+  const onStart = useCallback(() => setStatus("recordingVoice"), [setStatus]);
+  const onError = useCallback(() => setStatus("idle"), [setStatus]);
+
+  const { startRecording, stopRecording } = useMediaRecorder({
+    onStop,
+    onStart,
+    onError,
+  });
 
   useSubscription(status$, ([statusPrev, status]) => {
     switch (status) {
-      case "recordingVoice":
+      case "attemptingRecord":
         startRecording();
         URL.revokeObjectURL(blobUrl || "");
         setBlobUrl(undefined);

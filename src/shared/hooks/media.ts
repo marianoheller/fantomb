@@ -116,7 +116,7 @@ export function useMediaRecorder({
       );
       mediaRecorder.current.addEventListener("stop", handleStop);
       mediaRecorder.current.addEventListener("error", handleError);
-      mediaRecorder.current.start(100);
+      mediaRecorder.current.start(50);
       setStatus("recording");
       onStart();
     }

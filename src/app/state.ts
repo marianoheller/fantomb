@@ -1,4 +1,3 @@
-import { useSubscription } from "observable-hooks";
 import { useCallback, useMemo, RefObject, createRef } from "react";
 import ReactPlayer from "react-player";
 import { BehaviorSubject } from "rxjs";
@@ -11,6 +10,7 @@ export type AppStatus =
   | "idle"
   | "loading"
   | "playingVoice"
+  | "attemptingRecord"
   | "recordingVoice"
   | "playingVideo";
 
@@ -86,8 +86,6 @@ export const useAppState = () => {
     (region: TRegion) => state$.next({ ...state$.getValue(), region }),
     [state$]
   );
-
-  useSubscription(state$, s => console.log("State", s));
 
   return {
     state$,

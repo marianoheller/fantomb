@@ -1,24 +1,18 @@
 import { useObservable, useSubscription } from "observable-hooks";
 import React, { useCallback, useRef, useState } from "react";
-import { BehaviorSubject } from "rxjs";
-import { distinctUntilChanged, map, pairwise } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { pairwise } from "rxjs/operators";
 import { useMediaRecorder } from "../../../shared/hooks/media";
-import { AppState, AppStatus } from "../../state";
+import { AppStatus } from "../../state";
 
 interface RecorderProps {
-  state$: BehaviorSubject<AppState>;
+  status$: Observable<AppStatus>;
   setStatus: (status: AppStatus) => void;
 }
 
-const Recorder: React.FC<RecorderProps> = ({ state$, setStatus }) => {
+const Recorder: React.FC<RecorderProps> = ({ status$, setStatus }) => {
   const refAudio = useRef<HTMLAudioElement>(null);
-  const status$ = useObservable(() =>
-    state$.pipe(
-      distinctUntilChanged((s1, s2) => s1.status === s2.status),
-      map((s) => s.status),
-      pairwise()
-    )
-  );
+  const statusPair$ = useObservable(() => status$.pipe(pairwise()));
   const [blobUrl, setBlobUrl] = useState<string | undefined>(undefined);
 
   const onStop = useCallback(
@@ -42,7 +36,7 @@ const Recorder: React.FC<RecorderProps> = ({ state$, setStatus }) => {
     onError,
   });
 
-  useSubscription(status$, ([statusPrev, status]) => {
+  useSubscription(statusPair$, ([statusPrev, status]) => {
     switch (status) {
       case "attemptingRecord":
         startRecording();

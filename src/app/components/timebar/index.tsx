@@ -1,12 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import {
-  BehaviorSubject,
-  merge,
-  Observable,
-  OperatorFunction,
-  timer,
-} from "rxjs";
+import { merge, Observable, OperatorFunction, timer } from "rxjs";
 import {
   useObservable,
   useObservableCallback,
@@ -14,7 +8,6 @@ import {
   useSubscription,
 } from "observable-hooks";
 import {
-  distinctUntilChanged,
   filter,
   map,
   switchMap,
@@ -25,14 +18,17 @@ import {
 } from "rxjs/operators";
 import * as mouse from "../../../shared/operators/mouse";
 
-import { AppState } from "../../state";
+import { Url } from "../../state";
 
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
 import Marker from "./marker";
 
 interface TimebarProps {
-  state$: BehaviorSubject<AppState>;
+  url$: Observable<Url>;
+  region$: Observable<TRegion>;
+  progress$: Observable<number>;
+  duration$: Observable<number>;
   setRegion: (r: TRegion) => void;
   setProgress: (r: number) => void;
 }
@@ -46,7 +42,10 @@ const Svg = styled.svg<{ interactable: boolean }>`
 `;
 
 const Timebar: React.FC<TimebarProps> = ({
-  state$,
+  url$,
+  region$,
+  progress$,
+  duration$,
   setRegion,
   setProgress,
 }) => {
@@ -57,24 +56,7 @@ const Timebar: React.FC<TimebarProps> = ({
   );
 
   const [videoLoaded] = useObservableState(() =>
-    state$.pipe(map(({ url }) => url !== undefined))
-  );
-  const appRegion$ = useObservable(() =>
-    state$.pipe(
-      map((s) => s.region),
-      distinctUntilChanged()
-    )
-  );
-
-  const progress$ = useObservable<number>(() =>
-    state$.pipe(map(({ progress }) => progress))
-  );
-
-  const duration$ = useObservable<number>(() =>
-    state$.pipe(
-      map(({ duration }) => duration),
-      distinctUntilChanged()
-    )
+    url$.pipe(map((url) => url !== undefined))
   );
 
   const [onMouseDown, mouseDown$] = useObservableCallback<
@@ -143,7 +125,7 @@ const Timebar: React.FC<TimebarProps> = ({
   useSubscription(regionEnd$, setRegion);
   useSubscription(regionClear$, setRegion);
 
-  const region$ = useObservable(() => merge(appRegion$, _region$));
+  const mergedRegion$ = useObservable(() => merge(region$, _region$));
 
   return (
     <>
@@ -156,7 +138,11 @@ const Timebar: React.FC<TimebarProps> = ({
         interactable={!!videoLoaded}
       >
         <Marker progress$={progress$} />
-        <Region region$={region$} containerRef={svgRef} onRegion={setRegion} />
+        <Region
+          region$={mergedRegion$}
+          containerRef={svgRef}
+          onRegion={setRegion}
+        />
         <Axis duration$={duration$} />
       </Svg>
     </>

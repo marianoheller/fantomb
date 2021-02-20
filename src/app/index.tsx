@@ -4,38 +4,45 @@ import Player from "./components/player";
 import Input from "./components/input";
 import Timebar from "./components/timebar";
 import Controls from "./components/controls";
-
 import Recorder from "./components/recorder";
+
 import { useAppState } from "./state";
+import { usePartitionedState } from "./hooks";
 
 function App() {
+  const { state$, ...setters } = useAppState();
+
   const {
-    state$,
-    setUrl,
-    setStatus,
-    setDuration,
-    setProgress,
-    setManualProgress,
-    setRegion,
-  } = useAppState();
+    url$,
+    status$,
+    region$,
+    duration$,
+    progress$,
+    playerRef$,
+  } = usePartitionedState(state$);
 
   return (
     <div>
       <p>https://www.youtube.com/watch?v=EqE_AH39144</p>
       <p>https://www.youtube.com/watch?v=sS55zq6Hz8A</p>
-      <Input onChange={setUrl} />
+      <Input onChange={setters.setUrl} />
       <Timebar
-        state$={state$}
-        setRegion={setRegion}
-        setProgress={setManualProgress}
+        url$={url$}
+        region$={region$}
+        duration$={duration$}
+        progress$={progress$}
+        setRegion={setters.setRegion}
+        setProgress={setters.setManualProgress}
       />
-      <Controls state$={state$} setStatus={setStatus} />
+      <Controls status$={status$} setStatus={setters.setStatus} />
       <Player
-        state$={state$}
-        setDuration={setDuration}
-        setProgress={setProgress}
+        url$={url$}
+        playerRef$={playerRef$}
+        status$={status$}
+        setDuration={setters.setDuration}
+        setProgress={setters.setProgress}
       />
-      <Recorder state$={state$} setStatus={setStatus} />
+      <Recorder status$={status$} setStatus={setters.setStatus} />
     </div>
   );
 }

@@ -1,13 +1,15 @@
-import { useObservableState } from "observable-hooks";
-import React, { useCallback } from "react";
-import ReactPlayer from "react-player";
-import { BehaviorSubject } from "rxjs";
-import { map } from "rxjs/operators";
+import React, { RefObject, useCallback } from "react";
 import styled from "styled-components";
-import { AppState } from "../../state";
+import { useObservableState } from "observable-hooks";
+import ReactPlayer from "react-player";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { AppStatus, Url } from "../../state";
 
 interface PlayerProps {
-  state$: BehaviorSubject<AppState>;
+  url$: Observable<Url>;
+  status$: Observable<AppStatus>;
+  playerRef$: Observable<RefObject<ReactPlayer>>;
   setProgress: (progress: number) => void;
   setDuration: (progress: number) => void;
 }
@@ -22,19 +24,20 @@ const StyledReactPlayer = styled(ReactPlayer)`
 `;
 
 const Player: React.FC<PlayerProps> = ({
-  state$,
+  url$,
+  status$,
+  playerRef$,
   setProgress,
   setDuration,
 }) => {
-  const [ref] = useObservableState(() => state$.pipe(map((s) => s.playerRef)));
+  const [ref] = useObservableState(() => playerRef$);
+  const [url] = useObservableState(() => url$);
+  const [playing] = useObservableState(() =>
+    status$.pipe(map((status) => status === "playingVideo"))
+  );
   const _setProgress = useCallback(({ played }) => setProgress(played), [
     setProgress,
   ]);
-
-  const [url] = useObservableState(() => state$.pipe(map((s) => s.url)));
-  const [playing] = useObservableState(() =>
-    state$.pipe(map((s) => s.status === "playingVideo"))
-  );
 
   return (
     <PlayerWrapper>

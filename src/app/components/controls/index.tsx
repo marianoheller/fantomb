@@ -1,14 +1,13 @@
 import React from "react";
 import {
-  useObservable,
   useObservableCallback,
   useObservableState,
   useSubscription,
 } from "observable-hooks";
-import { BehaviorSubject } from "rxjs";
-import { distinctUntilChanged, map, withLatestFrom } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
 import styled from "styled-components";
-import { AppState, AppStatus } from "../../state";
+import { AppStatus } from "../../state";
 import { getLabels } from "./utils";
 
 const Container = styled.div`
@@ -22,20 +21,13 @@ const Container = styled.div`
 `;
 
 interface ControlProps {
-  state$: BehaviorSubject<AppState>;
+  status$: Observable<AppStatus>;
   setStatus: (status: AppStatus) => void;
 }
 
 const noop = (...args: any[]): void => {};
 
-const Controls: React.FC<ControlProps> = ({ state$, setStatus }) => {
-  const status$ = useObservable(() =>
-    state$.pipe(
-      map((s) => s.status),
-      distinctUntilChanged()
-    )
-  );
-
+const Controls: React.FC<ControlProps> = ({ status$, setStatus }) => {
   const [labels] = useObservableState(() => status$.pipe(map(getLabels)));
 
   const [videoEnabled] = useObservableState<boolean>(() =>
@@ -57,9 +49,9 @@ const Controls: React.FC<ControlProps> = ({ state$, setStatus }) => {
   );
 
   const [onVideoClick, videoClick$] = useObservableCallback(($e) =>
-    $e.pipe(withLatestFrom(state$))
+    $e.pipe(withLatestFrom(status$))
   );
-  useSubscription(videoClick$, ([_, { status }]) => {
+  useSubscription(videoClick$, ([_, status]) => {
     switch (status) {
       case "playingVideo":
         setStatus("idle");
@@ -73,9 +65,9 @@ const Controls: React.FC<ControlProps> = ({ state$, setStatus }) => {
   });
 
   const [onRecordingClick, recordingClick$] = useObservableCallback(($e) =>
-    $e.pipe(withLatestFrom(state$))
+    $e.pipe(withLatestFrom(status$))
   );
-  useSubscription(recordingClick$, ([_, { status }]) => {
+  useSubscription(recordingClick$, ([_, status]) => {
     switch (status) {
       case "recordingVoice":
         setStatus("idle");
@@ -89,9 +81,9 @@ const Controls: React.FC<ControlProps> = ({ state$, setStatus }) => {
   });
 
   const [onPlaybackClick, playbackClick$] = useObservableCallback(($e) =>
-    $e.pipe(withLatestFrom(state$))
+    $e.pipe(withLatestFrom(status$))
   );
-  useSubscription(playbackClick$, ([_, { status }]) => {
+  useSubscription(playbackClick$, ([_, status]) => {
     switch (status) {
       case "playingVoice":
         setStatus("idle");

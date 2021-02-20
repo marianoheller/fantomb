@@ -87,7 +87,7 @@ export const useAppState = () => {
     [state$]
   );
 
-  useSubscription(state$, console.log);
+  useSubscription(state$, s => console.log("State", s));
 
   return {
     state$,

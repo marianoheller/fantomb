@@ -66,7 +66,7 @@ const Timebar: React.FC<TimebarProps> = ({
   );
 
   const duration$ = useObservable<number>(() =>
-    state$.pipe(map(({ duration }) => duration))
+    state$.pipe(map(({ duration }) => duration), distinctUntilChanged())
   );
 
   const [onMouseDown, mouseDown$] = useObservableCallback<

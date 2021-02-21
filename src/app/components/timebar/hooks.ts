@@ -1,5 +1,6 @@
 import { useObservable, useObservableCallback } from "observable-hooks";
 import { RefObject, useEffect } from "react";
+import { merge } from "rxjs";
 import { distinctUntilChanged, map, scan, throttleTime } from "rxjs/operators";
 import * as mouse from "../../../shared/operators/mouse";
 
@@ -24,14 +25,21 @@ export const useZoom = (ref: RefObject<Element>) => {
     (e$) => e$.pipe(map(mouse.preventDefault))
   );
 
+  const [resetZoom, resetZoom$] = useObservableCallback<number, void>((e$) =>
+    e$.pipe(map(() => 100))
+  );
+
   const zoom$ = useObservable(() =>
-    wheel$.pipe(
-      throttleTime(20),
-      map(parseZoomValue),
-      scan((acc, v) => Math.max(100, v + acc), 100),
-      distinctUntilChanged()
+    merge(
+      resetZoom$,
+      wheel$.pipe(
+        throttleTime(20),
+        map(parseZoomValue),
+        scan((acc, v) => Math.max(100, v + acc), 100),
+        distinctUntilChanged()
+      )
     )
   );
 
-  return { zoom$, onWheel };
+  return { zoom$, onWheel, resetZoom };
 };

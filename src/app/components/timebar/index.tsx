@@ -13,6 +13,7 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
   throttleTime,
   withLatestFrom,
 } from "rxjs/operators";
@@ -57,10 +58,15 @@ const Timebar: React.FC<TimebarProps> = ({
   setProgress,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { onWheel, zoom$ } = useZoom(svgRef);
+  const { onWheel, resetZoom, zoom$ } = useZoom(svgRef);
+  const [zoom] = useObservableState(() => zoom$, 100);
 
   const [videoLoaded] = useObservableState(
-    () => url$.pipe(map((url) => url !== undefined)),
+    () =>
+      url$.pipe(
+        tap(() => resetZoom()),
+        map((url) => url !== undefined)
+      ),
     false
   );
 
@@ -131,8 +137,6 @@ const Timebar: React.FC<TimebarProps> = ({
   useSubscription(regionClear$, setRegion);
 
   const mergedRegion$ = useObservable(() => merge(region$, _region$));
-
-  const [zoom] = useObservableState(() => zoom$, 100);
 
   return (
     <TimebarWrapper>

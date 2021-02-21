@@ -64,7 +64,6 @@ const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
         const fraction = duration / idealTickCount;
         const segment = scales.find((s) => s >= fraction) || 3840;
         const tickCount = Math.floor(duration / segment);
-        console.warn("GOT", idealTickCount, fraction, segment, tickCount);
         return [...Array(tickCount).keys()].map((i) => {
           const x = (100 * i) / tickCount;
           const tick = toDateTime(segment * i);

@@ -37,8 +37,20 @@ const formatTick = (d: Date): string => {
   return format(d, "mm:ss");
 };
 
+const scales = [
+  1,
+  2,
+  5,
+  10,
+  15,
+  20,
+  30,
+  40,
+  ...[...Array(20).keys()].map((i) => i * 60),
+];
+
 const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
-  const tickCount$ = useObservable(() =>
+  const idealTickCount$ = useObservable(() =>
     zoom$.pipe(
       startWith(100),
       map((z) => Math.round(z / 10))
@@ -46,13 +58,16 @@ const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
   );
 
   const [Ticks] = useObservableState(() =>
-    combineLatest([duration$, tickCount$]).pipe(
-      map(([duration, tickCount]) => {
+    combineLatest([duration$, idealTickCount$]).pipe(
+      map(([duration, idealTickCount]) => {
         if (!duration) return null;
-        const segment = duration / tickCount;
+        const fraction = duration / idealTickCount;
+        const segment = scales.find((s) => s >= fraction) || 3840;
+        const tickCount = Math.floor(duration / segment);
+        console.warn("GOT", idealTickCount, fraction, segment, tickCount);
         return [...Array(tickCount).keys()].map((i) => {
           const x = (100 * i) / tickCount;
-          const tick = toDateTime(Math.round(segment * i));
+          const tick = toDateTime(segment * i);
           const label = formatTick(tick);
           return (
             <g key={tick.valueOf()}>

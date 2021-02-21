@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.js": "/fantomb/static/js/main.ecef53de.chunk.js",
-    "main.js.map": "/fantomb/static/js/main.ecef53de.chunk.js.map",
+    "main.js": "/fantomb/static/js/main.b0428cda.chunk.js",
+    "main.js.map": "/fantomb/static/js/main.b0428cda.chunk.js.map",
     "runtime-main.js": "/fantomb/static/js/runtime-main.12916959.js",
     "runtime-main.js.map": "/fantomb/static/js/runtime-main.12916959.js.map",
-    "static/js/2.d8b9ae60.chunk.js": "/fantomb/static/js/2.d8b9ae60.chunk.js",
-    "static/js/2.d8b9ae60.chunk.js.map": "/fantomb/static/js/2.d8b9ae60.chunk.js.map",
+    "static/js/2.d705b6c7.chunk.js": "/fantomb/static/js/2.d705b6c7.chunk.js",
+    "static/js/2.d705b6c7.chunk.js.map": "/fantomb/static/js/2.d705b6c7.chunk.js.map",
     "static/js/3.042824a0.chunk.js": "/fantomb/static/js/3.042824a0.chunk.js",
     "static/js/3.042824a0.chunk.js.map": "/fantomb/static/js/3.042824a0.chunk.js.map",
     "index.html": "/fantomb/index.html",
-    "static/js/2.d8b9ae60.chunk.js.LICENSE.txt": "/fantomb/static/js/2.d8b9ae60.chunk.js.LICENSE.txt"
+    "static/js/2.d705b6c7.chunk.js.LICENSE.txt": "/fantomb/static/js/2.d705b6c7.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.12916959.js",
-    "static/js/2.d8b9ae60.chunk.js",
-    "static/js/main.ecef53de.chunk.js"
+    "static/js/2.d705b6c7.chunk.js",
+    "static/js/main.b0428cda.chunk.js"
   ]
 }

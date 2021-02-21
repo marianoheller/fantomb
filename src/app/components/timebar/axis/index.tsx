@@ -1,17 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { scaleTime } from "d3-scale";
 import format from "date-fns/format";
-import { useWindowSize } from "../../../../shared/hooks/browser";
-import {
-  useObservable,
-  useObservableState,
-} from "observable-hooks";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { useObservable, useObservableState } from "observable-hooks";
+import { combineLatest, Observable } from "rxjs";
+import { map, startWith } from "rxjs/operators";
 
 interface AxiosProps {
   duration$: Observable<number>;
+  zoom$: Observable<number>;
 }
 
 const Group = styled.g`
@@ -41,28 +37,22 @@ const formatTick = (d: Date): string => {
   return format(d, "mm:ss");
 };
 
-const TICK_COUNT = 10;
-
-const Axis: React.FC<AxiosProps> = ({ duration$ }) => {
-  const windowSize = useWindowSize();
-  const scale$ = useObservable(() =>
-    duration$.pipe(
-      map((d) => {
-        if (!d) return undefined;
-        return scaleTime()
-          .domain([toDateTime(0), toDateTime(d)])
-          .range([0, 100]);
-      })
+const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
+  const tickCount$ = useObservable(() =>
+    zoom$.pipe(
+      startWith(100),
+      map((z) => Math.round(z / 10))
     )
   );
 
   const [Ticks] = useObservableState(() =>
-    scale$.pipe(
-      map((scale) => {
-        if (!scale) return null;
-        const ticks = scale.ticks(TICK_COUNT);
-        return ticks.map((tick, i) => {
-          const x = (100 * i) / TICK_COUNT;
+    combineLatest([duration$, tickCount$]).pipe(
+      map(([duration, tickCount]) => {
+        if (!duration) return null;
+        const segment = duration / tickCount;
+        return [...Array(tickCount).keys()].map((i) => {
+          const x = (100 * i) / tickCount;
+          const tick = toDateTime(Math.round(segment * i));
           const label = formatTick(tick);
           return (
             <g key={tick.valueOf()}>
@@ -77,7 +67,7 @@ const Axis: React.FC<AxiosProps> = ({ duration$ }) => {
     )
   );
 
-  return <Group key={String(windowSize)}>{Ticks}</Group>;
+  return <Group>{Ticks}</Group>;
 };
 
 export default Axis;

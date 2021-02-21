@@ -42,12 +42,13 @@ const Player: React.FC<PlayerProps> = ({
   return (
     <PlayerWrapper>
       <StyledReactPlayer
+        key={url} /* https://github.com/CookPete/react-player/issues/880 */
         ref={ref}
         url={url}
         playing={playing}
         controls={false}
-        onDuration={setDuration}
         onProgress={_setProgress}
+        onDuration={setDuration}
         volume={1}
         progressInterval={100}
       />

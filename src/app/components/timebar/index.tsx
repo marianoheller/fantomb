@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import { merge, Observable, OperatorFunction, timer } from "rxjs";
 import {
@@ -23,6 +23,7 @@ import { Url } from "../../state";
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
 import Marker from "./marker";
+import { useZoom } from "./hooks";
 
 interface TimebarProps {
   url$: Observable<Url>;
@@ -33,8 +34,14 @@ interface TimebarProps {
   setProgress: (r: number) => void;
 }
 
-const Svg = styled.svg<{ interactable: boolean }>`
+const TimebarWrapper = styled.div`
   width: 100%;
+  overflow: hidden;
+  overflow-x: auto;
+`;
+
+const Svg = styled.svg<{ interactable: boolean; zoom: number }>`
+  width: ${({ zoom }) => `${zoom}%`};
   height: 2rem;
   background-color: rgb(240, 240, 240);
   cursor: ${({ interactable }) => (interactable ? "pointer" : "auto")};
@@ -50,13 +57,11 @@ const Timebar: React.FC<TimebarProps> = ({
   setProgress,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  useEffect(
-    () => svgRef.current?.addEventListener("wheel", (e) => e.preventDefault()),
-    [svgRef]
-  );
+  const { onWheel, zoom$ } = useZoom(svgRef);
 
-  const [videoLoaded] = useObservableState(() =>
-    url$.pipe(map((url) => url !== undefined))
+  const [videoLoaded] = useObservableState(
+    () => url$.pipe(map((url) => url !== undefined)),
+    false
   );
 
   const [onMouseDown, mouseDown$] = useObservableCallback<
@@ -127,15 +132,19 @@ const Timebar: React.FC<TimebarProps> = ({
 
   const mergedRegion$ = useObservable(() => merge(region$, _region$));
 
+  const [zoom] = useObservableState(() => zoom$, 100);
+
   return (
-    <>
+    <TimebarWrapper>
       <Svg
         ref={svgRef}
         onContextMenu={(e) => e.preventDefault()}
         onClick={_onClick}
         onMouseUp={onMouseUp}
         onMouseDown={onMouseDown}
-        interactable={!!videoLoaded}
+        onWheel={onWheel}
+        interactable={videoLoaded}
+        zoom={zoom}
       >
         <Marker progress$={progress$} />
         <Region
@@ -143,9 +152,9 @@ const Timebar: React.FC<TimebarProps> = ({
           containerRef={svgRef}
           onRegion={setRegion}
         />
-        <Axis duration$={duration$} />
+        <Axis duration$={duration$} zoom$={zoom$} />
       </Svg>
-    </>
+    </TimebarWrapper>
   );
 };
 

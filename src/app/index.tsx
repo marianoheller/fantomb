@@ -23,8 +23,6 @@ function App() {
 
   return (
     <div>
-      <p>https://www.youtube.com/watch?v=EqE_AH39144</p>
-      <p>https://www.youtube.com/watch?v=sS55zq6Hz8A</p>
       <Input onChange={setters.setUrl} />
       <Timebar
         url$={url$}

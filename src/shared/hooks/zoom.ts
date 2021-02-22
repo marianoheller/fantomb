@@ -2,7 +2,7 @@ import { useObservable, useObservableCallback } from "observable-hooks";
 import { RefObject, useEffect } from "react";
 import { merge } from "rxjs";
 import { distinctUntilChanged, map, scan, throttleTime } from "rxjs/operators";
-import * as mouse from "../../../shared/operators/mouse";
+import * as mouse from "../operators/mouse";
 
 const parseZoomValue = ({
   deltaX,
@@ -15,6 +15,9 @@ const parseZoomValue = ({
   return d * sign;
 };
 
+export const INITIAL_ZOOM = 1;
+export const SENSITIVITY = 0.01;
+
 export const useZoom = (ref: RefObject<Element>) => {
   useEffect(
     () => ref.current?.addEventListener("wheel", (e) => e.preventDefault()),
@@ -26,7 +29,7 @@ export const useZoom = (ref: RefObject<Element>) => {
   );
 
   const [resetZoom, resetZoom$] = useObservableCallback<number, void>((e$) =>
-    e$.pipe(map(() => 100))
+    e$.pipe(map(() => INITIAL_ZOOM))
   );
 
   const zoom$ = useObservable(() =>
@@ -35,7 +38,15 @@ export const useZoom = (ref: RefObject<Element>) => {
       wheel$.pipe(
         throttleTime(20),
         map(parseZoomValue),
-        scan((acc, v) => Math.max(100, v + acc), 100),
+        scan(
+          (acc, v) => {
+            const exp = acc.exp + v * SENSITIVITY;
+            const zoom = Math.max(INITIAL_ZOOM, Math.pow(2, exp));
+            return { zoom, exp };
+          },
+          { zoom: INITIAL_ZOOM, exp: 1 }
+        ),
+        map(({ zoom }) => zoom),
         distinctUntilChanged()
       )
     )

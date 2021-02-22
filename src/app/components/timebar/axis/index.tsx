@@ -3,7 +3,8 @@ import styled from "styled-components";
 import format from "date-fns/format";
 import { useObservable, useObservableState } from "observable-hooks";
 import { combineLatest, Observable } from "rxjs";
-import { map, startWith } from "rxjs/operators";
+import { distinctUntilChanged, map, startWith } from "rxjs/operators";
+import { INITIAL_ZOOM } from "../../../../shared/hooks/zoom";
 
 interface AxiosProps {
   duration$: Observable<number>;
@@ -52,21 +53,30 @@ const scales = [
 const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
   const idealTickCount$ = useObservable(() =>
     zoom$.pipe(
-      startWith(100),
-      map((z) => Math.round(z / 10))
+      startWith(INITIAL_ZOOM),
+      map((z) => Math.round(z * 10)),
+      distinctUntilChanged()
+    )
+  );
+
+  const tickCount$ = useObservable(() =>
+    combineLatest([duration$, idealTickCount$]).pipe(
+      map(([duration, idealTickCount]) => {
+        const fraction = duration / idealTickCount;
+        const segment = scales.find((s) => s >= fraction) || 3840;
+        return Math.floor(duration / segment);
+      }),
+      distinctUntilChanged()
     )
   );
 
   const [Ticks] = useObservableState(() =>
-    combineLatest([duration$, idealTickCount$]).pipe(
-      map(([duration, idealTickCount]) => {
+    combineLatest([duration$, tickCount$]).pipe(
+      map(([duration, tickCount]) => {
         if (!duration) return null;
-        const fraction = duration / idealTickCount;
-        const segment = scales.find((s) => s >= fraction) || 3840;
-        const tickCount = Math.floor(duration / segment);
         return [...Array(tickCount).keys()].map((i) => {
           const x = (100 * i) / tickCount;
-          const tick = toDateTime(segment * i);
+          const tick = toDateTime((i * duration) / tickCount);
           const label = formatTick(tick);
           return (
             <g key={tick.valueOf()}>

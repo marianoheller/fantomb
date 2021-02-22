@@ -18,13 +18,13 @@ import {
   withLatestFrom,
 } from "rxjs/operators";
 import * as mouse from "../../../shared/operators/mouse";
+import { useZoom } from "../../../shared/hooks/zoom";
 
 import { Url } from "../../state";
 
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
 import Marker from "./marker";
-import { useZoom } from "./hooks";
 
 interface TimebarProps {
   url$: Observable<Url>;
@@ -41,8 +41,14 @@ const TimebarWrapper = styled.div`
   overflow-x: auto;
 `;
 
-const Svg = styled.svg<{ interactable: boolean; zoom: number }>`
-  width: ${({ zoom }) => `${zoom}%`};
+type SvgProps = { interactable: boolean; zoom: number };
+const svg = styled.svg<SvgProps>``;
+
+const Svg = styled(svg).attrs((props: SvgProps) => ({
+  style: {
+    width: `${100 * props.zoom}%`,
+  },
+}))`
   height: 2rem;
   background-color: rgb(240, 240, 240);
   cursor: ${({ interactable }) => (interactable ? "pointer" : "auto")};
@@ -147,8 +153,8 @@ const Timebar: React.FC<TimebarProps> = ({
         onMouseUp={onMouseUp}
         onMouseDown={onMouseDown}
         onWheel={onWheel}
-        interactable={videoLoaded}
         zoom={zoom}
+        interactable={videoLoaded}
       >
         <Marker progress$={progress$} />
         <Region

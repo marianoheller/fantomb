@@ -49,7 +49,7 @@ const Svg = styled(svg).attrs((props: SvgProps) => ({
     width: `${100 * props.zoom}%`,
   },
 }))`
-  height: 2rem;
+  height: 4rem;
   background-color: rgb(240, 240, 240);
   cursor: ${({ interactable }) => (interactable ? "pointer" : "auto")};
   pointer-events: ${({ interactable }) => (interactable ? "all" : "none")};

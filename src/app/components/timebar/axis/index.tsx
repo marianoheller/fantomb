@@ -23,7 +23,7 @@ const Tick = styled.rect`
 `;
 
 const TickLabel = styled.text`
-  font-size: 0.33rem;
+  font-size: 0.5rem;
   color: black;
 `;
 
@@ -37,6 +37,8 @@ const formatTick = (d: Date): string => {
   if (d.getHours() > 0) return format(d, "HH:mm:ss");
   return format(d, "mm:ss");
 };
+
+const INITIAL_QTY = 20;
 
 const scales = [
   1,
@@ -54,7 +56,7 @@ const Axis: React.FC<AxiosProps> = ({ duration$, zoom$ }) => {
   const idealTickCount$ = useObservable(() =>
     zoom$.pipe(
       startWith(INITIAL_ZOOM),
-      map((z) => Math.round(z * 10)),
+      map((z) => Math.round(z * INITIAL_QTY)),
       distinctUntilChanged()
     )
   );

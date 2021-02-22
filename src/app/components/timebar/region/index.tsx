@@ -14,8 +14,8 @@ const Rect = styled.rect`
 
 const Border = styled.rect`
   height: 100%;
-  width: 1px;
-  fill: rgba(0, 0, 0, 0.5);
+  width: 2px;
+  fill: rgb(220, 10, 10);
   cursor: col-resize;
 `;
 

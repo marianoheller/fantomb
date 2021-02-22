@@ -26,6 +26,7 @@ function App() {
       <Input onChange={setters.setUrl} />
       <Timebar
         url$={url$}
+        status$={status$}
         region$={region$}
         duration$={duration$}
         progress$={progress$}

@@ -20,7 +20,7 @@ import {
 import * as mouse from "../../../shared/operators/mouse";
 import { useZoom } from "../../../shared/hooks/zoom";
 
-import { Url } from "../../state";
+import { AppStatus, Url } from "../../state";
 
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
@@ -28,6 +28,7 @@ import Marker from "./marker";
 
 interface TimebarProps {
   url$: Observable<Url>;
+  status$: Observable<AppStatus>;
   region$: Observable<TRegion>;
   progress$: Observable<number>;
   duration$: Observable<number>;
@@ -57,6 +58,7 @@ const Svg = styled(svg).attrs((props: SvgProps) => ({
 
 const Timebar: React.FC<TimebarProps> = ({
   url$,
+  status$,
   region$,
   progress$,
   duration$,
@@ -156,7 +158,7 @@ const Timebar: React.FC<TimebarProps> = ({
         zoom={zoom}
         interactable={videoLoaded}
       >
-        <Marker progress$={progress$} />
+        <Marker progress$={progress$} status$={status$} />
         <Region
           region$={mergedRegion$}
           containerRef={svgRef}

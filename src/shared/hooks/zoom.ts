@@ -12,10 +12,11 @@ const parseZoomValue = ({
     .filter(Math.abs)
     .reduce((acc, v) => acc * v, 1);
   const d = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-  return d * sign;
+  return d * sign * -1;
 };
 
 export const INITIAL_ZOOM = 1;
+export const BASE = 1.01;
 export const SENSITIVITY = 0.01;
 
 export const useZoom = (ref: RefObject<Element>) => {
@@ -41,7 +42,7 @@ export const useZoom = (ref: RefObject<Element>) => {
         scan(
           (acc, v) => {
             const exp = acc.exp + v * SENSITIVITY;
-            const zoom = Math.max(INITIAL_ZOOM, Math.pow(2, exp));
+            const zoom = Math.max(INITIAL_ZOOM, Math.pow(BASE, exp));
             return { zoom, exp };
           },
           { zoom: INITIAL_ZOOM, exp: 1 }

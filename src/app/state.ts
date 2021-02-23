@@ -45,7 +45,13 @@ export const useAppState = () => {
   );
 
   const setUrl = useCallback(
-    (url: Url) => state$.next({ ...state$.getValue(), url }),
+    (url: Url) =>
+      state$.next({
+        ...state$.getValue(),
+        url,
+        duration: 0,
+        region: undefined,
+      }),
     [state$]
   );
 

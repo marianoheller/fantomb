@@ -44,7 +44,7 @@ export const useZoom = (ref: RefObject<Element>) => {
       resetZoom$,
       wheel$.pipe(
         throttleTime(20),
-       /*  tap((e) => {
+        /*  tap((e) => {
           if (!ref.current) return;
           const svgWidth = ref.current.getBoundingClientRect().width;
           const divWidth =
@@ -58,6 +58,7 @@ export const useZoom = (ref: RefObject<Element>) => {
           console.warn("EVENT", scrollVal);
         }), */
         map(parseZoomValue),
+        distinctUntilChanged(),
         scan(
           (acc, v) => {
             const exp = acc.exp + v * SENSITIVITY;
@@ -66,8 +67,7 @@ export const useZoom = (ref: RefObject<Element>) => {
           },
           { zoom: INITIAL_ZOOM, exp: 1 }
         ),
-        map(({ zoom }) => zoom),
-        distinctUntilChanged()
+        map(({ zoom }) => zoom)
       )
     )
   );

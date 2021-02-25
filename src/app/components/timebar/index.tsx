@@ -25,6 +25,7 @@ import { AppStatus, Url } from "../../state";
 import Region, { TRegion } from "./region";
 import Axis from "./axis";
 import Marker from "./marker";
+import Feedback from "./feedback";
 
 interface TimebarProps {
   url$: Observable<Url>;
@@ -40,6 +41,7 @@ const TimebarWrapper = styled.div`
   width: 100%;
   overflow: hidden;
   overflow-x: auto;
+  position: relative;
 `;
 
 type SvgProps = { interactable: boolean; zoom: number };
@@ -166,6 +168,7 @@ const Timebar: React.FC<TimebarProps> = ({
         />
         <Axis duration$={duration$} zoom$={zoom$} />
       </Svg>
+      <Feedback zoom$={zoom$} />
     </TimebarWrapper>
   );
 };
